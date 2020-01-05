@@ -24,19 +24,19 @@ def create_app(test_config=None):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
 
-  '''
-  Handle GET requests for all available categories.'''
-  @app.route('/categories')
+  '''Handle GET requests for all available categories.'''
+  @app.route('/categories', methods=['GET'])
   def get_all_categories():
     categories = Category.query.all()
-    current_categories = [category.format() for category in categories]
-    if len(current_categories) == 0:
+    categories = [category.format() for category in categories]
+    
+    if len(categories) == 0:
       abort(404)
 
     return jsonify({
       'success': True,
-      'all_categories': current_categories,
-      'total_categories': len(current_categories)
+      'all_categories': categories,
+      'total_categories': len(categories)
     })
 
   '''
@@ -51,6 +51,49 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
+  BOOKS_PER_PAGE = 10
+
+  def paginate_questions(request, questions):
+    page = request.args.get('page', 1, type=int)
+    start = (page - 1) * BOOKS_PER_PAGE
+    end = start + BOOKS_PER_PAGE
+
+    questions = [question.format() for question in questions]
+    current_questions = questions[start:end]
+
+    return current_questions
+
+
+  @app.route('/questions', methods=['GET'])
+  def get_all_questions():
+    categories = Category.query.all()
+    categories = [category.format() for category in categories]
+
+    current_category = request.args.get('category', 0, type=int)
+
+    if current_category != 0:
+      questions = Question.query.filter_by(category=current_category).all()
+      current_category = Category.query.get(current_category)
+      current_category = {
+        'id': current_category.id,
+        'type': current_category.type
+      }
+    else:
+      questions = Question.query.all()
+      current_category = categories
+    
+    current_questions = paginate_questions(request, questions)
+
+    if len(current_questions) == 0:
+      abort(404)
+
+    return jsonify({
+      'success': True,
+      'all_questions': current_questions,
+      'total_questions': len(current_questions),
+      'current_category': current_category,
+      'all_categories': categories
+    })
 
   '''
   @TODO: 

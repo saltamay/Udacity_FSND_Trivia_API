@@ -111,7 +111,7 @@ class QuizView extends Component {
                       key={c.id}
                       value={c.id}
                       className="play-category"
-                      onClick={() => this.selectCategory({type:this.state.categories[c.id - 1].type}, c.id)}>
+                      onClick={() => this.selectCategory({type:this.state.categories[c.id - 1].type, id:c.id})}>
                       {this.state.categories[c.id - 1].type}
                     </div>
                   )

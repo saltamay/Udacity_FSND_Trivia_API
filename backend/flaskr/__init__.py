@@ -123,10 +123,8 @@ def create_app(test_config=None):
     except:
       abort(422) 
 
-  def create_question():
+  def create_question(body):
     
-    body = request.get_json()
-
     new_question = body.get('question', None)
     new_answer = body.get('answer', None)
 
@@ -159,8 +157,8 @@ def create_app(test_config=None):
     except:
       abort(422)
   
-  def search_questions():
-    search_term = request.args.get('search', None, type=str)
+  def search_questions(body):
+    search_term = body.get('searchTerm', None)
     
     if search_term is None:
       abort(400)
@@ -171,8 +169,8 @@ def create_app(test_config=None):
 
       return jsonify({
         'success': True,
-        'total_results': len(results),
-        'all_results': results
+        'total_questions': len(results),
+        'questions': results
       })
     
     except:
@@ -180,6 +178,7 @@ def create_app(test_config=None):
   
   @app.route('/questions', methods=['POST'])
   def handle_post():
+    body = request.get_json()
     '''
     Create a POST endpoint to get questions based on a search term. 
     It should return any questions for whom the search term 
@@ -189,8 +188,8 @@ def create_app(test_config=None):
     only question that include that string within their question. 
     Try using the word "title" to start. 
     '''
-    if 'search' in request.args:
-      return search_questions()
+    if 'searchTerm' in body:
+      return search_questions(body)
     else:
       '''
       Create an endpoint to POST a new question, 
@@ -201,7 +200,7 @@ def create_app(test_config=None):
       the form will clear and the question will appear at the end of the last page
       of the questions list in the "List" tab.  
       '''
-      return create_question()
+      return create_question(body)
   
   '''
   Create a GET endpoint to get questions based on category. 

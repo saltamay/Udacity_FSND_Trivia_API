@@ -92,6 +92,16 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['total_results'])
         self.assertTrue(len(data['all_results']))
 
+    def test_get_questions_by_category(self):
+        res = self.client().get('/categories/1/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(len(data['all_questions']))
+        self.assertTrue(data['total_questions'])
+        self.assertTrue(len(data['current_category']))
+
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()

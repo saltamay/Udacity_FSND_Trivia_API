@@ -35,7 +35,7 @@ def create_app(test_config=None):
 
     return jsonify({
       'success': True,
-      'all_categories': categories,
+      'categories': categories,
       'total_categories': len(categories)
     })
 
@@ -88,10 +88,10 @@ def create_app(test_config=None):
 
     return jsonify({
       'success': True,
-      'all_questions': current_questions,
+      'questions': current_questions,
       'total_questions': len(current_questions),
       'current_category': current_category,
-      'all_categories': categories
+      'categories': categories
     })
 
   '''
@@ -251,10 +251,32 @@ def create_app(test_config=None):
   '''
 
   '''
-  @TODO: 
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
+  @app.errorhandler(404)
+  def not_found(error):
+    return jsonify({
+      "success": False, 
+      "error": 404,
+      "message": "resource not found"
+      }), 404
+
+  @app.errorhandler(422)
+  def unprocessable(error):
+    return jsonify({
+      "success": False, 
+      "error": 422,
+      "message": "unprocessable"
+      }), 422
+
+  @app.errorhandler(400)
+  def bad_request(error):
+    return jsonify({
+      "success": False, 
+      "error": 400,
+      "message": "bad request"
+      }), 400
   
   return app
 

@@ -39,8 +39,7 @@ def create_app(test_config=None):
       'total_categories': len(categories)
     })
 
-  '''
-  @TODO: 
+  ''' 
   Create an endpoint to handle GET requests for questions, 
   including pagination (every 10 questions). 
   This endpoint should return a list of questions, 
@@ -96,7 +95,6 @@ def create_app(test_config=None):
     })
 
   '''
-  @TODO: 
   Create an endpoint to DELETE question using a question ID. 
 
   TEST: When you click the trash icon next to a question, the question will be removed.
@@ -135,6 +133,47 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
+  @app.route('/questions', methods=['POST'])
+  def create_question():
+    
+    body = request.get_json()
+
+    new_question = body.get('question', None)
+    new_answer = body.get('answer', None)
+
+    if 'category' in body:
+      new_category = int(body.get('category', None))
+    else:
+      new_category = None
+    
+    if 'difficulty' in body:
+      new_difficulty = int(body.get('difficulty', None))
+    else:
+      new_difficulty = None
+
+    print(new_question)
+    print(new_answer)
+    print(new_category)
+    print(new_difficulty)
+
+    try:
+      question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
+      print(question)
+
+      question.insert()
+
+      questions = Question.query.all()
+      current_questions = paginate_questions(request, questions)
+
+      return jsonify({
+        'success': True,
+        'created': question.id,
+        'all_questions': current_questions,
+        'total_questions': len(current_questions)
+      })
+    
+    except:
+      abort(422)
 
   '''
   @TODO: 

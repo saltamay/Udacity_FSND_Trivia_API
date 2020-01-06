@@ -22,22 +22,41 @@ class QuestionView extends Component {
   }
 
   getQuestions = () => {
-    $.ajax({
-      url: `/questions?page=${this.state.page}`, //TODO: update request URL
-      type: "GET",
-      success: (result) => {
-        this.setState({
-          questions: result.questions,
-          totalQuestions: result.total_questions,
-          categories: result.categories,
-          currentCategory: result.current_category })
-        return;
-      },
-      error: (error) => {
-        alert('Unable to load questions. Please try your request again')
-        return;
-      }
-    })
+    if (this.state.currentCategory) {
+      $.ajax({
+        url: `/questions?page=${this.state.page}&category=${this.state.currentCategory.id}`, //TODO: update request URL
+        type: "GET",
+        success: (result) => {
+          this.setState({
+            questions: result.questions,
+            totalQuestions: result.total_questions,
+            categories: result.categories,
+            currentCategory: result.current_category })
+          return;
+        },
+        error: (error) => {
+          alert('Unable to load questions. Please try your request again')
+          return;
+        }
+      })
+    } else {
+      $.ajax({
+        url: `/questions?page=${this.state.page}`, //TODO: update request URL
+        type: "GET",
+        success: (result) => {
+          this.setState({
+            questions: result.questions,
+            totalQuestions: result.total_questions,
+            categories: result.categories,
+            currentCategory: result.current_category })
+          return;
+        },
+        error: (error) => {
+          alert('Unable to load questions. Please try your request again')
+          return;
+        }
+      })
+    }
   }
 
   selectPage(num) {

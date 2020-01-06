@@ -68,9 +68,9 @@ def create_app(test_config=None):
     categories = Category.query.all()
     categories = [category.format() for category in categories]
 
-    current_category = request.args.get('category', 0, type=int)
+    current_category = request.args.get('category')
 
-    if current_category != 0:
+    if current_category:
       questions = Question.query.filter_by(category=current_category).all()
       current_category = Category.query.get(current_category)
       current_category = [{
@@ -89,7 +89,7 @@ def create_app(test_config=None):
     return jsonify({
       'success': True,
       'questions': current_questions,
-      'total_questions': len(Question.query.all()),
+      'total_questions': len(questions),
       'current_category': current_category,
       'categories': categories
     })
@@ -219,19 +219,14 @@ def create_app(test_config=None):
       
       current_category = Category.query.filter(Category.id == category_id).one_or_none()
 
-      current_category = [{
-        'id': current_category.id,
-        'type': current_category.type
-      }]
-
       if len(current_questions) == 0:
         abort(404)
       
       return jsonify({
         'success': True,
-        'all_questions': current_questions,
-        'total_questions': len(current_questions),
-        'current_category': current_category
+        'questions': current_questions,
+        'total_questions': len(questions),
+        'current_category': current_category.format()
       })
     
     except:

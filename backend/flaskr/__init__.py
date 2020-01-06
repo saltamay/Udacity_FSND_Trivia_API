@@ -123,17 +123,6 @@ def create_app(test_config=None):
     except:
       abort(422) 
 
-  '''
-  @TODO: 
-  Create an endpoint to POST a new question, 
-  which will require the question and answer text, 
-  category, and difficulty score.
-
-  TEST: When you submit a question on the "Add" tab, 
-  the form will clear and the question will appear at the end of the last page
-  of the questions list in the "List" tab.  
-  '''
-  @app.route('/questions', methods=['POST'])
   def create_question():
     
     body = request.get_json()
@@ -142,19 +131,14 @@ def create_app(test_config=None):
     new_answer = body.get('answer', None)
 
     if 'category' in body:
-      new_category = int(body.get('category', None))
+      new_category = int(body.get('category'))
     else:
       new_category = None
     
     if 'difficulty' in body:
-      new_difficulty = int(body.get('difficulty', None))
+      new_difficulty = int(body.get('difficulty'))
     else:
       new_difficulty = None
-
-    print(new_question)
-    print(new_answer)
-    print(new_category)
-    print(new_difficulty)
 
     try:
       question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
@@ -174,18 +158,51 @@ def create_app(test_config=None):
     
     except:
       abort(422)
+  
+  def search_questions():
+    search_term = request.args.get('search', None, type=str)
+    
+    if search_term is None:
+      abort(400)
 
-  '''
-  @TODO: 
-  Create a POST endpoint to get questions based on a search term. 
-  It should return any questions for whom the search term 
-  is a substring of the question. 
+    try:
+      results = Question.query.filter(Question.question.ilike('%' + search_term + '%')).all()
+      results = [result.format() for result in results]
 
-  TEST: Search by any phrase. The questions list will update to include 
-  only question that include that string within their question. 
-  Try using the word "title" to start. 
-  '''
+      return jsonify({
+        'success': True,
+        'total_results': len(results),
+        'all_results': results
+      })
+    
+    except:
+      abort(422)
+  
+  @app.route('/questions', methods=['POST'])
+  def handle_post():
+    '''
+    Create a POST endpoint to get questions based on a search term. 
+    It should return any questions for whom the search term 
+    is a substring of the question.
 
+    TEST: Search by any phrase. The questions list will update to include 
+    only question that include that string within their question. 
+    Try using the word "title" to start. 
+    '''
+    if 'search' in request.args:
+      return search_questions()
+    else:
+      '''
+      Create an endpoint to POST a new question, 
+      which will require the question and answer text, 
+      category, and difficulty score.
+
+      TEST: When you submit a question on the "Add" tab, 
+      the form will clear and the question will appear at the end of the last page
+      of the questions list in the "List" tab.  
+      '''
+      return create_question()
+  
   '''
   @TODO: 
   Create a GET endpoint to get questions based on category. 
@@ -194,7 +211,6 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
-
 
   '''
   @TODO: 

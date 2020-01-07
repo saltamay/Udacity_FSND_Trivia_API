@@ -14,9 +14,10 @@ class TriviaTestCase(unittest.TestCase):
         """Define test variables and initialize app."""
         self.app = create_app()
         self.client = self.app.test_client
-        self.database_name = "trivia_test"
-        self.database_password = "admin"
-        self.database_path = "postgresql://{}:{}@{}/{}".format('postgres', self.database_password, 'localhost:5432', self.database_name)
+        self.db_name = "trivia_test"
+        self.db_username = os.environ.get('DB_USER')
+        self.db_password = os.environ.get('DB_PASS')
+        self.database_path = "postgresql://{}:{}@{}/{}".format(self.db_username, self.db_password, 'localhost:5432', self.db_name)
         setup_db(self.app, self.database_path)
 
         self.new_question = {
@@ -52,6 +53,17 @@ class TriviaTestCase(unittest.TestCase):
 
     def test_get_all_questions_paginated(self):
         res = self.client().get('/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(len(data['questions']))
+        self.assertTrue(data['total_questions'])
+        self.assertTrue(len(data['current_category']))
+        self.assertTrue(len(data['categories']))
+
+    def test_return_all_questions_with_invalid_category(self):
+        res = self.client().get('/questions?page=2&category=undefined', json={'category': 1})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)

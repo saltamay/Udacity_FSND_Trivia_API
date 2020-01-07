@@ -65,11 +65,13 @@ def create_app(test_config=None):
 
   @app.route('/questions', methods=['GET'])
   def get_all_questions():
+    '''Get and format all categories'''
     categories = Category.query.all()
     categories = [category.format() for category in categories]
 
     current_category = request.args.get('category')
 
+    '''If category provided, get questions for that particular category'''
     if current_category:
       questions = Question.query.filter_by(category=current_category).all()
       current_category = Category.query.get(current_category)
@@ -78,6 +80,7 @@ def create_app(test_config=None):
         'type': current_category.type
       }]
     else:
+      '''Get all questions and categories'''
       questions = Question.query.all()
       current_category = categories
     
@@ -104,7 +107,7 @@ def create_app(test_config=None):
   def delete_question(question_id):
     try:
       question = Question.query.filter_by(id=question_id).one_or_none()
-    
+      '''If question invalid, abort with 404'''
       if question is None:
         abort(404)
 
@@ -158,9 +161,6 @@ def create_app(test_config=None):
   
   def search_questions(body):
     search_term = body.get('searchTerm', None)
-    
-    if search_term is None:
-      abort(400)
 
     try:
       results = Question.query.filter(Question.question.ilike('%' + search_term + '%')).all()
@@ -212,7 +212,8 @@ def create_app(test_config=None):
   def get_questions_by_category(category_id):
     
     questions = Question.query.filter_by(category=category_id).all()
-
+    
+    '''Abort if category id does not exist'''
     if len(questions) == 0:
       abort(404)
 
@@ -260,6 +261,7 @@ def create_app(test_config=None):
       for question in questions:
         question_ids.append(question.id)
     
+      '''Filter out all questions in that category that are already answered'''
       if 'previous_questions' in body:
         previous_questions = body.get('previous_questions', [])
         filtered_questions_list = [id for id in question_ids if id not in previous_questions]

@@ -69,10 +69,10 @@ def create_app(test_config=None):
     categories = Category.query.all()
     categories = [category.format() for category in categories]
 
-    current_category = request.args.get('category')
+    current_category = request.args.get('category', None)
 
     '''If category provided, get questions for that particular category'''
-    if current_category:
+    if isinstance(current_category, int):
       questions = Question.query.filter_by(category=current_category).all()
       current_category = Category.query.get(current_category)
       current_category = [{
@@ -82,7 +82,7 @@ def create_app(test_config=None):
     else:
       '''Get all questions and categories'''
       questions = Question.query.all()
-      current_category = categories
+      current_category = categories    
     
     current_questions = paginate_questions(request, questions)
 

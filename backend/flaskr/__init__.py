@@ -140,7 +140,6 @@ def create_app(test_config=None):
 
     try:
       question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
-      print(question)
 
       question.insert()
 
@@ -212,15 +211,16 @@ def create_app(test_config=None):
   @app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_questions_by_category(category_id):
     
+    questions = Question.query.filter_by(category=category_id).all()
+
+    if len(questions) == 0:
+      abort(404)
+
     try:
-      
-      questions = Question.query.filter_by(category=category_id).all()
+
       current_questions = paginate_questions(request, questions)
       
       current_category = Category.query.filter(Category.id == category_id).one_or_none()
-
-      if len(current_questions) == 0:
-        abort(404)
       
       return jsonify({
         'success': True,
